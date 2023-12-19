@@ -11,8 +11,8 @@ const upload=multer({dest:'./file'})
 
 router.post('/register',async(req,res)=>{
     const {email,password,name}=req.body
-    const salt=await bcrypt.genSalt(10)
-    const hashedPassword=await bcrypt.hash(password,salt)
+    // const salt=await bcrypt.genSalt(10)
+    const hashedPassword=await bcrypt.hash(password,10)
     const record=await User.findOne({email:email})
 
     if(record){
@@ -43,6 +43,7 @@ router.post('/register',async(req,res)=>{
 })
 
 router.post('/login',async(req,res)=>{
+    try {
     const user=await User.findOne({email:req.body.email})
     if(!user){
         return res.status(404).send({
@@ -55,7 +56,7 @@ router.post('/login',async(req,res)=>{
         })
     }
 
-    const token=jwt.sign({_id:user._id},"secret")
+    const token=jwt.sign({_id:user},"secret")
 
     res.cookie("jwt",token,{
         httpOnly:true,
@@ -65,6 +66,9 @@ router.post('/login',async(req,res)=>{
     res.send({
         message:"Success"
     })
+    }catch(error){
+      console.log(error.message)
+    }
 })
 
 router.get('/user',async(req,res)=>{
@@ -77,7 +81,7 @@ router.get('/user',async(req,res)=>{
             })
         }
         const user=await User.findOne({_id:claims._id})
-        const {password,...data}=await user.toJSON()
+        const {password,...data}= user.toJSON()
         res.send(data)
     } catch (error) {
         return res.status(401).send({
@@ -124,7 +128,7 @@ router.get('/profile',async(req,res)=>{
             })
         }
         const user=await User.findOne({_id:claims._id})
-        const {password,...data}=await user.toJSON()
+        const {password,...data}= user.toJSON()
         res.send(data)
     } catch (error) {
         console.log(error.message)

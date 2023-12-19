@@ -9,14 +9,15 @@ const bcrypt=require('bcryptjs')
 
 adminrouter.post('/login',async(req,res)=>{
     try {
-        const user=await User.findOne({email:req.body.email,is_admin:"true"})
+        const { email,password } =req.body
+        const user=await User.findOne({email:email,is_admin:true})
         if(!user){
             return res.status(400).send({
                 message:"user not found"
             })
         }
 
-        if(!(await bcrypt.compare(req.body.password,user.password))){
+        if(!(await bcrypt.compare(password,user.password))){
             return res.status(400).send({
                 message:"Password is incorrect"
             })
@@ -54,7 +55,7 @@ adminrouter.get('/active',async(req,res)=>{
             })
         }
 
-        const user=await User.findOne({_id:claims._id,is_admin:"true"})
+        const user=await User.findOne({_id:claims._id,is_admin:true})
         const {password,...data}=user.toJSON()
         res.send(data)
     } catch (error) {
@@ -75,7 +76,7 @@ adminrouter.get('/users',async(req,res)=>{
 
 adminrouter.post('/deleteUser/:id',async(req,res)=>{
     try {
-        const deleteUser=await User.findOne({_id:req.params.id})
+        const deleteUser=await User.findByIdAndDelete({_id:req.params.id})
         if(!deleteUser){
             return res.send({
                 message:"Deletion went wrong"
@@ -89,13 +90,13 @@ adminrouter.post('/deleteUser/:id',async(req,res)=>{
 
 adminrouter.post('/editDetails/:id',async(req,res)=>{
     try {
-        const userData=await User.findOne({_id:req.params.id})
+        const userData=await User.findByIdAndUpdate({_id:req.params.id})
         if(!userData){
             return res.send({
                 message:"Something went wrong"
             })
         }
-        const {password,...data}=await userData.toJSON()
+        const {password,...data}= userData.toJSON()
         res.send(data)
     } catch (error) {
         console.log(error.message)

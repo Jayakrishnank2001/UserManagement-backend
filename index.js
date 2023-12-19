@@ -1,7 +1,8 @@
+require('dotenv').config()
 const express=require('express')
 const mongoose=require('mongoose')
-const routes=require('./routes/routes')
-const adminRoutes=require('./routes/adminRoute')
+const userRoutes=require('./routes/userRoutes')
+const adminRoutes=require('./routes/adminRoutes')
 const cors=require('cors')
 const cookieParser=require('cookie-parser')
 
@@ -14,8 +15,9 @@ app.use(cors({
 
 app.use(cookieParser())
 app.use(express.json())
+app.use(express.urlencoded({extended:true}))
 
-app.use('/api',routes)
+app.use('/api',userRoutes)
 app.use('/api/admin',adminRoutes)
 
 app.use('/file',express.static('file'))
